@@ -16,12 +16,21 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setCurrentTenant(tenant);
       localStorage.setItem('tenantId', tenant.id);
       
-      // Update favicon
-      const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
-      link.type = 'image/x-icon';
-      link.rel = 'shortcut icon';
-      link.href = tenant.favicon;
-      document.getElementsByTagName('head')[0].appendChild(link);
+      // Update favicon for both light and dark modes
+      const lightFaviconLink = document.querySelector("link[rel='icon'][media='(prefers-color-scheme: light)']") as HTMLLinkElement || document.createElement('link');
+      const darkFaviconLink = document.querySelector("link[rel='icon'][media='(prefers-color-scheme: dark)']") as HTMLLinkElement || document.createElement('link');
+      
+      [lightFaviconLink, darkFaviconLink].forEach(link => {
+        link.type = 'image/svg+xml';
+        link.rel = 'icon';
+        link.href = tenant.favicon;
+      });
+
+      lightFaviconLink.media = '(prefers-color-scheme: light)';
+      darkFaviconLink.media = '(prefers-color-scheme: dark)';
+
+      document.head.appendChild(lightFaviconLink);
+      document.head.appendChild(darkFaviconLink);
       
       // Update document title
       document.title = `${tenant.name} - Multi-Tenant POC`;
@@ -31,6 +40,15 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const updateTenant = (tenant: Tenant) => {
     setCurrentTenant(tenant);
     localStorage.setItem('tenantId', tenant.id);
+    
+    // Update favicon when tenant changes
+    const lightFaviconLink = document.querySelector("link[rel='icon'][media='(prefers-color-scheme: light)']") as HTMLLinkElement;
+    const darkFaviconLink = document.querySelector("link[rel='icon'][media='(prefers-color-scheme: dark)']") as HTMLLinkElement;
+    
+    if (lightFaviconLink && darkFaviconLink) {
+      lightFaviconLink.href = tenant.favicon;
+      darkFaviconLink.href = tenant.favicon;
+    }
   };
 
   return (
