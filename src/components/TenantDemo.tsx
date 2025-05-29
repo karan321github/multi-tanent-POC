@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTenant } from '../contexts/TenantContext';
-import { tenants } from '../config/tenants';
+import { mockTenants } from '../mock/tenantData.ts';
 
 export const TenantDemo: React.FC = () => {
   const { currentTenant, setCurrentTenant } = useTenant();
@@ -10,7 +10,7 @@ export const TenantDemo: React.FC = () => {
   return (
     <div className="container">
       <header className="header">
-        <img className="logo" src={currentTenant.logo} alt={`${currentTenant.name} logo`} />
+        <img className="logo" src={currentTenant.favicon} alt={`${currentTenant.name} logo`} />
         <h1>{currentTenant.name}</h1>
       </header>
 
@@ -26,13 +26,13 @@ export const TenantDemo: React.FC = () => {
 
       <div className="tenant-switcher">
         <h3>Switch Tenant:</h3>
-        {Object.values(tenants).map((tenant) => (
+        {Object.values(mockTenants).map((tenantObj) => (
           <button
-            key={tenant.id}
-            onClick={() => setCurrentTenant(tenant)}
-            className={`button ${currentTenant.id === tenant.id ? 'active' : ''}`}
+            key={tenantObj.tenant.id}
+            onClick={() => setCurrentTenant(tenantObj.tenant)}
+            className={`button ${currentTenant.id === tenantObj.tenant.id ? 'active' : ''}`}
           >
-            {tenant.name}
+            {tenantObj.tenant.name}
           </button>
         ))}
       </div>

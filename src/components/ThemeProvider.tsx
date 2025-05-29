@@ -1,22 +1,38 @@
 import React, { useEffect } from 'react';
 import { useTenant } from '../contexts/TenantContext';
-import '../styles/global.css';
+import { mockTenants } from '../mock/tenantData';
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  debugger;
   const { currentTenant } = useTenant();
 
   useEffect(() => {
-    if (currentTenant) {
-      // Update CSS variables when tenant changes
-      document.documentElement.style.setProperty('--primary-color', currentTenant.theme.primary);
-      document.documentElement.style.setProperty('--secondary-color', currentTenant.theme.secondary);
-      document.documentElement.style.setProperty('--background-color', currentTenant.theme.background);
-      document.documentElement.style.setProperty('--text-color', currentTenant.theme.text);
-      document.documentElement.style.setProperty('--font-primary', currentTenant.theme.font.primary);
-      document.documentElement.style.setProperty('--font-secondary', currentTenant.theme.font.secondary);
-      document.documentElement.style.setProperty('--border-radius', currentTenant.theme.borderRadius);
+    if (!currentTenant) return;
+
+    // Inject Global CSS
+    const styleId = 'dynamic-tenant-style';
+    const existingStyle = document.getElementById(styleId);
+    if (existingStyle) existingStyle.remove();
+
+    const tenantData = mockTenants[currentTenant.id];
+    if (tenantData) {
+      const style = document.createElement('style');
+      style.id = styleId;
+      style.innerHTML = tenantData.globalCss;
+      document.head.appendChild(style);
     }
+
+    // Update favicon
+    const faviconId = 'dynamic-favicon';
+    let faviconEl = document.getElementById(faviconId) as HTMLLinkElement;
+
+    if (!faviconEl) {
+      faviconEl = document.createElement('link');
+      faviconEl.id = faviconId;
+      faviconEl.rel = 'icon';
+      document.head.appendChild(faviconEl);
+    }
+
+    faviconEl.href = currentTenant.favicon;
   }, [currentTenant]);
 
   if (!currentTenant) {
@@ -24,4 +40,4 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }
 
   return <>{children}</>;
-}; 
+};
